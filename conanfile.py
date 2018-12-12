@@ -7,7 +7,6 @@ import os
 
 class MongoCDriverConan(ConanFile):
     name = "mongo-c-driver"
-<<<<<<< HEAD
     version = "1.11.0"
     description = "A high-performance MongoDB driver for C"
     topics = ("conan", "libmongoc", "mongodb")
@@ -18,31 +17,16 @@ class MongoCDriverConan(ConanFile):
     exports = ["LICENSE.md"]
     exports_sources = ["Find*.cmake", "header_path.patch", "CMakeLists.txt"]
     generators = "cmake"
-    
+
     settings = "os", "compiler", "arch", "build_type"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {'shared': False, 'fPIC': True}
-    
+
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
-    
-    requires = 'zlib/1.2.11@conan/stable'
-    
-=======
-    version = "1.9.4"
-    url = "https://github.com/mongodb/mongo-c-driver"
-    description = "A high-performance MongoDB driver for C"
-    topics = ("conan", "libmongoc", "mongodb")
-    author = "Bincrafters <bincrafters@gmail.com>"
-    license = "Apache-2.0"
-    settings =  "os", "compiler", "arch", "build_type"
-    options = {"shared": [True, False]}
-    default_options = {"shared": False}
-    requires = 'zlib/1.2.11@conan/stable'
-    exports_sources = ["Find*.cmake"]
-    # TODO add cyrus-sasl
 
->>>>>>> testing/1.9.4
+    requires = 'zlib/1.2.11@conan/stable'
+
     def configure(self):
         # Because this is pure C
         del self.settings.compiler.libcxx
@@ -53,18 +37,15 @@ class MongoCDriverConan(ConanFile):
 
     def requirements(self):
         if not tools.os_info.is_macos and not tools.os_info.is_windows:
-            self.requires.add("OpenSSL/1.0.2o@conan/stable")
+            self.requires.add("OpenSSL/1.1.1a@jzien/dev")
 
     def source(self):
-<<<<<<< HEAD
         tools.get("https://github.com/mongodb/mongo-c-driver/releases/download/{0}/mongo-c-driver-{0}.tar.gz"
                   .format(self.version))
-=======
-        tools.get("https://github.com/mongodb/mongo-c-driver/releases/download/{0}/mongo-c-driver-{0}.tar.gz".format(self.version), sha256="910c2f1b2e3df4d0ea39c2f242160028f90fcb8201f05339a730ec4ba70811fb")
->>>>>>> testing/1.9.4
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
-        tools.patch(base_path=self._source_subfolder, patch_file="header_path.patch")
+        tools.patch(base_path=self._source_subfolder,
+                    patch_file="header_path.patch")
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -84,7 +65,8 @@ class MongoCDriverConan(ConanFile):
         cmake.build()
 
     def package(self):
-        self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
+        self.copy(pattern="COPYING*", dst="licenses",
+                  src=self._source_subfolder)
         self.copy("Find*.cmake", ".", ".")
 
         # cmake installs all the files
@@ -96,7 +78,8 @@ class MongoCDriverConan(ConanFile):
             else ['mongoc-static-1.0', 'bson-static-1.0']
 
         if tools.os_info.is_macos:
-            self.cpp_info.exelinkflags = ['-framework CoreFoundation', '-framework Security']
+            self.cpp_info.exelinkflags = [
+                '-framework CoreFoundation', '-framework Security']
             self.cpp_info.sharedlinkflags = self.cpp_info.exelinkflags
 
         if tools.os_info.is_linux:
@@ -109,4 +92,5 @@ class MongoCDriverConan(ConanFile):
                 self.cpp_info.libs.append('resolv')
 
             if tools.os_info.is_windows:
-                self.cpp_info.libs.extend(['ws2_32.lib', 'secur32.lib', 'crypt32.lib', 'BCrypt.lib', 'Dnsapi.lib'])
+                self.cpp_info.libs.extend(
+                    ['ws2_32.lib', 'secur32.lib', 'crypt32.lib', 'BCrypt.lib', 'Dnsapi.lib'])
